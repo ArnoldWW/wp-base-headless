@@ -1,5 +1,10 @@
 <?php
 
+// Format ACF REST API response to show image URLs instead of attachment IDs
+add_filter("acf/settings/rest_api_format", function () {
+    return "standard";
+});
+
 /* -- Theme Setup -- */
 function coffee_shop_setup()
 {
