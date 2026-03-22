@@ -5,7 +5,7 @@ add_filter("acf/settings/rest_api_format", function () {
     return "standard";
 });
 
-/* -- Theme Setup -- */
+/* -- Action Theme Setup -- */
 function coffee_shop_setup()
 {
     // Enable support for post thumbnails (featured images)
@@ -13,12 +13,27 @@ function coffee_shop_setup()
 }
 add_action('after_setup_theme', 'coffee_shop_setup');
 
-/* -- REST API Initialization -- */
+/* -- Action REST API -- */
 function coffee_shop_api_init()
 {
     // Add featured image URL to REST API response for pages
-    register_rest_field(array("page"), "featured_images", [
+    register_rest_field(array("page", "post"), "featured_images", [
         "get_callback" => "get_featured_image_sizes",
+    ]);
+
+    // Add details of categories to REST API response for posts
+    register_rest_field("post", "category_details", [
+        "get_callback" => function ($post) {
+            $categories = get_the_category($post["id"]);
+            $category_details = [];
+            foreach ($categories as $category) {
+                $category_details[] = [
+                    "name" => $category->name,
+                    "slug" => $category->slug,
+                ];
+            }
+            return $category_details;
+        },
     ]);
 }
 
@@ -50,4 +65,6 @@ function get_featured_image_sizes($post)
     // Return all image URLs
     return $images;
 }
+
+// Initialize REST API custom fields
 add_action('rest_api_init', 'coffee_shop_api_init');
